@@ -1,7 +1,7 @@
-interface IData<T = any> {
-    code: number;
-    msg: string;
+export interface IData<T = any> {
+    code: number | string;
+    message: string;
     success: boolean;
     data: T;
+    totalRecord?: number
 }
-export type { IData };

@@ -6,7 +6,7 @@
         <div class="optionBox">
           <!-- 单选 -->
           <van-radio-group v-if="topicArr[checkIndex].type === 1" :disabled="topicArr[checkIndex].isSubmit" v-model="topicArr[checkIndex].userAnswer" shape="square">
-            <van-radio style="color: blue" :name="item" v-for="item in topicArr[0].answer">
+            <van-radio style="color: blue" :name="item" v-for="item in topicArr[checkIndex].answer">
               <template #default>
                 <span :style="{color:topicArr[checkIndex].isSubmit ? '#bab8ad': '#fff'}">{{ item.content }}</span>
               </template>
@@ -34,64 +34,22 @@
       </div>
      <em v-if="topicArr && topicArr[checkIndex].isSubmit">答案：{{topicArr[checkIndex].correctOptions.split('').toString()}}</em>
      <div class="checkBtn">
-       <img @click="upIndex" src="@/assets/image/upperBtn.png" alt="">
-       <img @click="nextIndex" src="@/assets/image/nextBtn.png" alt="">
+       <template v-if="!isAllSubmit">
+         <img v-if="isSubmit" @click="nextIndex" src="@/assets/image/nextBtn.png" alt="">
+         <img v-else @click="submit(topicArr[checkIndex])" src="@/assets/image/submitAnswer.png" alt="">
+       </template>
+       <img v-else @click="luckyDraw" src="../assets/image/submitBtn.png" alt="">
      </div>
    </div>
-   <div class="submit">
-     <img @click="submit(topicArr[checkIndex])" src="../assets/image/submitBtn.png" alt="">
-   </div>
  </div>
- <!-- 遮罩层 -->
-  <van-overlay :show="show">
-    <div v-if="!fillInfo" class="giftBox" @click.stop>
-      <div v-if="isWin" class="gift">
-        <img @click="fillAddressBtn" src="../assets/image/fillAddress.png" alt="">
-      </div>
-      <div v-else class="gift1">
-        <img  src="../assets/image/giftBox1.png" alt="">
-      </div>
-      <img @click="show = false" class="close" src="../assets/image/closeBtn.png" alt="">
-    </div>
-    <!-- 表单 -->
-    <div v-else class="addressBox giftBox">
-      <div class="submitItem">
-        <van-form @submit="onSubmit">
-          <van-cell-group inset>
-            <van-field
-                v-model="userInfo.userName"
-                name="用户名"
-                :label-width="30"
-                label="姓名"
-                placeholder="姓名"
-            />
-          </van-cell-group>
-          <van-cell-group inset>
-            <van-field
-                :label-width="30"
-                v-model="userInfo.phone"
-                label="手机"
-                placeholder="手机号"
-            />
-          </van-cell-group>
-          <van-cell-group inset>
-            <van-field
-                :label-width="30"
-                v-model="userInfo.address"
-                label="地址"
-                placeholder="地址"
-            />
-          </van-cell-group>
-          <div style="margin: 16px;">
-            <van-button round block type="primary" native-type="submit">
-              <img src="../assets/image/submitFrom.png" alt="">
-            </van-button>
-          </div>
-        </van-form>
-      </div>
-      <img @click="show = false" class="close" src="../assets/image/closeBtn.png" alt="">
-    </div>
-  </van-overlay>
+  <!-- 正确音效 -->
+  <audio ref="audio">
+    <source src="../assets/correct.mp3" type="audio/mpeg">
+  </audio>
+  <!-- 错误音效 -->
+  <audio ref="audio1">
+    <source src="../assets/failure.mp3" type="audio/mpeg">
+  </audio>
 </template>
 
 <script setup lang="ts">
@@ -103,8 +61,12 @@ import {getTopicList,getAnswer,playPrize,addInfo} from "@/api/path";
 import {VueCookieNext} from "vue-cookie-next";
 import {Toast} from "vant";
 import 'vant/es/toast/style/index';
-import {json} from "stream/consumers";
+import 'vant/es/picker/style/index';
+import {urbanArea} from '@/utils/urbanArea'
 const router = useRouter();
+
+
+const isSubmit = ref(false)
 
 onMounted(() => {
 topicList()
@@ -125,111 +87,86 @@ const topicList = async () => {
  })
  topicArr.value = data
 }
-const upIndex = () => {
-  if (checkIndex.value >= 0) {
-    checkIndex.value --
-  }
 
-}
+
 const nextIndex = async () => {
-  console.log("topicArr.value[checkIndex.value].userAnswer",topicArr.value[checkIndex.value].userAnswer)
-  if (topicArr.value[checkIndex.value].userAnswer.length === 0 || topicArr.value[checkIndex.value].userAnswer === '' ) {
-    Toast.fail('本题未作答！')
-  } else {
-    if (!topicArr.value[checkIndex.value].isSubmit) {
-      Toast.fail('请先提交选项')
-    } else {
-      if (checkIndex.value < topicArr.value.length - 1) {
-        checkIndex.value ++
-      } else {
-        if (isAllSubmit) {
-          const { code,data,msg } = await playPrize({openId: VueCookieNext.getCookie('openId')})
-          if (code === 10012) {
-            Toast.fail(msg)
-          } else {
-            show.value = true
-            if (data.id === 1) {
-              isWin.value = true
-            }
-          }
-        }
-      }
-    }
-  }
-
-
+   if (checkIndex.value < topicArr.value.length) {
+      checkIndex.value ++
+        isSubmit.value = false
+   }
 }
 
 
-const checked = ref()
-const radioValue = ref()
-const show = ref<boolean>(false)
-const isWin = ref<boolean>(true)
-const fillInfo = ref<boolean>(false)
+// 点击抽奖
+const luckyDraw = async () => {
+  await getAnswer(JSON.stringify(answerData))
+  await router.push('/prize')
+}
+
 
 // 提交答题
+const audio = ref<any>(null)
+const audio1 = ref<any>(null)
 const isAllSubmit = ref(false)
-let answerData = {
+let answerData = reactive({
   answer:[] as any,
   openId: VueCookieNext.getCookie('openId')
-}
+})
 const submit = async (item:any) => {
-  console.log("checked.value",checked.value)
   let answerItem = reactive({
     answerOptions: item.type === 1 ?item.userAnswer.options : item.userAnswer.toString().replace(/,/g, ''),
     id: item.id
   })
-  answerData.answer.push(answerItem)
-  item.isSubmit = true
-  if (checkIndex.value === 4) {
-    const { data } = await getAnswer(JSON.stringify(answerData))
-    isAllSubmit.value = true
-  }
-
-}
-// 填写地址
-const fillAddressBtn = () => {
-  isWin.value = false
-  fillInfo.value = true
-}
-
-
-const userInfo = reactive({
-  userName: '',
-  phone: '',
-  address: ''
-})
-
-
-// 提交表单
-const onSubmit = async (values:any) => {
-  let formData = {
-    name: userInfo.userName,
-    phone: userInfo.phone,
-    address: userInfo.address,
-    openId: VueCookieNext.getCookie('openId')
-  }
-  const { code,data,msg } = await addInfo(JSON.stringify(formData))
-  if (code === 200){
-    Toast.success('信息已提交')
+  if (topicArr.value[checkIndex.value].userAnswer.length === 0 || topicArr.value[checkIndex.value].userAnswer === '') {
+    Toast.fail('本题未作答')
   } else {
-    Toast.fail(msg)
+    let containsId = answerData.answer.some((item:any) => item.id === answerItem.id)
+    console.log("containsId",containsId)
+    if (!containsId) {
+      answerData.answer.push(answerItem)
+      item.isSubmit = true
+      isSubmit.value = true
+      const isRight = ref(false)
+      if (item.type === 1) {
+        isRight.value = item.userAnswer.options === item.correctOptions
+      } else {
+        isRight.value = judgeAnswer(item.correctOptions,item.userAnswer)
+      }
+      if (isRight.value) {
+        audio.value.play()
+      } else {
+        audio1.value.play()
+      }
+      if (checkIndex.value === 4) {
+        isAllSubmit.value = true
+      }
+    }
   }
 
+}
+
+// 比较答案
+const judgeAnswer = (correctAnswer:any, myAnswer:any) => {
+  if (typeof myAnswer === 'string') {
+      return correctAnswer === myAnswer
+  } else {
+    const sortedArrString = myAnswer.slice().sort().join('');
+    return sortedArrString === correctAnswer;
+  }
 }
 </script>
 
 <style scoped lang="scss">
 .answerBox{
   width: 100%;
-  height: 989px;
+  height: 100%;
   overflow: scroll;
   background-image: url("@/assets/image/answerBg.png");
   background-repeat: no-repeat;
   background-size: 100% auto;
   z-index: -1;
   .answer{
-    margin-top: 410px;
+    margin-top: 250px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -237,13 +174,13 @@ const onSubmit = async (values:any) => {
     height: 360px;
     position: relative;
     .answerItem{
-      width: 80%;
+      width: 90%;
       height: 220px;
       background-image: url("@/assets/image/answerBox.png");
       background-repeat: no-repeat;
       background-size: 100% 100%;
-      z-index: 1;
       .title{
+        margin-top: 6px;
         width: 82%;
         font-size: 13px;
         display: flex;
@@ -277,13 +214,13 @@ const onSubmit = async (values:any) => {
       display: flex;
       justify-content: space-around;
       img{
-        width: 40%;
+        width: 45%;
       }
     }
     em{
       position:absolute;
       bottom: 95px;
-      left: 55px;
+      left: 35px;
       font-size: 15px;
     }
   }
@@ -320,29 +257,31 @@ const onSubmit = async (values:any) => {
   }
   .gift1{
     img{
-      width: 100%;
+      width: 90%;
     }
   }
   .close{
     width: 10%;
     text-align: center;
-    margin-top: 50px;
+    margin-top: 10px;
   }
 }
 .addressBox{
   margin-top: -50px;
   .submitItem{
     width: 100%;
-    height: 359px;
-    background-image: url("@/assets/image/submitInfo.png");
+    height: 309px;
+    //background-image: url("@/assets/image/submitInfo.png");
     background-size: 100% 100%;
     position: relative;
     display: flex;
     justify-content: center;
     .van-form{
-      width: 100%;
+      width: 99.4%;
       position: absolute;
-      top: 120px;
+      top: -10px;
+      background-color: white;
+      border-radius: 0 0 10px 10px;
       .van-cell-group{
         border-bottom: 1px solid #999;
         border-radius: 0;

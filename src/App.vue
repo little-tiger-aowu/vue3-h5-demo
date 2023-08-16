@@ -1,8 +1,10 @@
 <template>
+  <music></music>
   <router-view />
 </template>
 
 <script setup lang="ts">
+import music from '@/components/music.vue'
 document.title = import.meta.env.VITE_APP_TITLE
 </script>
 

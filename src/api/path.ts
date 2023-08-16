@@ -74,3 +74,12 @@ export function getUserStart (params:any) {
         params
     })
 }
+
+// 查看抽奖记录
+export function getRecord (data:any) {
+    return XrequestInstance.request({
+        url: '/prize/record',
+        method: 'POST',
+        data
+    })
+}

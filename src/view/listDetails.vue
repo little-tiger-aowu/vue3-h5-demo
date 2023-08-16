@@ -2,16 +2,19 @@
   <div class="listDetailsBox">
     <header class="header">{{ newsInfo.bigTitle }}</header>
     <div class="content">
-      <div class="Copywriting">
-        {{ newsInfo.title }}
-      </div>
-      <div v-if="newsInfo.video" class="video">
-        <video style="width: 100%;height: 100%" controls>
+      <!--      <img v-if="!isPlay" style="width: 100%;height: 230px" src="../assets/image/Ranking/videoBox.png" alt="">-->
+      <div v-if="newsInfo.video" class="video" style="position: relative">
+        <!--        <div style="font-size: 15px;position: absolute;top: 0;z-index: 11 " @click="playBtn">点击</div>-->
+        <video ref="myVideo" style="width: 100%;height: 100%" controls>
           <source
               :src="newsInfo.video"
               type="video/mp4"/>
         </video>
       </div>
+      <div class="Copywriting">
+        <img :src="newsInfo.title" alt="">
+      </div>
+
     </div>
     <!--    <van-field ref="input" class="actionValue" v-model="value" placeholder="请输入用户名"/>-->
     <!-- 评论 -->
@@ -42,8 +45,8 @@
               <div class="time" style="line-height: 28px">{{ item.createTime }}</div>
             </div>
             <div class="actionInfo">
-              <div>{{ item.content }}</div>
-              <div @click="likeBtn(item)">
+              <div class="content1">{{ item.content }}</div>
+              <div style="width: 18%" @click="likeBtn(item)">
                 <van-icon v-if="item.flag" size="20" color="#ff0400" name="good-job"/>
                 <van-icon v-else size="20" name="good-job-o"/>
                 {{ item.count }}
@@ -118,6 +121,15 @@ const showOverlay = ref(false);
 onMounted(() => {
   getListInfo()
 })
+
+// 播放
+const isPlay = ref<boolean>(false)
+const myVideo = ref<any>(null)
+const playBtn = () => {
+  myVideo.value.play()
+  isPlay.value = true
+}
+
 
 // 获取详情数据
 const stageId = ref(parseInt(route.query.id as string))
@@ -264,12 +276,15 @@ const toShare = () => {
 
     .Copywriting {
       font-size: 15px;
-      max-height: 100px;
-      overflow: scroll;
+      //max-height: 100px;
+      margin-top: 15px;
+      //overflow: scroll;
+      img {
+        width: 100%;
+      }
     }
 
     .video {
-      margin-top: 15px;
       width: 100%;
       height: 200px;
     }
@@ -295,12 +310,12 @@ const toShare = () => {
 
     .actionBox {
       width: 90%;
-      height: 250px;
-      overflow: scroll;
+      min-height: 150px;
+      margin-bottom: 50px;
     }
 
     .actionContent {
-      height: 80px;
+      min-height: 80px;
       margin: 5px 0;
 
       .userInfo {
@@ -332,12 +347,16 @@ const toShare = () => {
       }
 
       .actionInfo {
-        margin: 8px auto;
-        width: 80%;
+        margin: 7px auto;
+        width: 85%;
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-size: 15px;
+
+        .content1 {
+          width: 82%;
+        }
       }
     }
   }

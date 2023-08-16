@@ -55,6 +55,7 @@ const toDetails = (item: any) => {
   overflow: hidden;
 
   .listItem {
+    width: 100%;
     display: flex;
     flex-direction: column;
     margin-top: 280px;

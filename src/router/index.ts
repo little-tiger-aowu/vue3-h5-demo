@@ -1,12 +1,17 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { VueCookieNext } from 'vue-cookie-next'
+import {createRouter, createWebHistory, createWebHashHistory, RouteRecordRaw} from 'vue-router';
+import {VueCookieNext} from 'vue-cookie-next'
 
 const routes: Array<RouteRecordRaw> = [
+    // {
+    //     path: '/login',
+    //     redirect: (_) => {
+    //         return {path: '/login'};
+    //     }
+    // },
     {
         path: '/',
-        redirect: (_) => {
-            return { path: '/home' };
-        }
+        name: 'login',
+        component: () => import('@/view/logon.vue')
     },
     {
         path: '/home',
@@ -19,20 +24,21 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/view/404.vue')
     }
 ]
+
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory('/rotary/'),
     routes
 })
 
 router.beforeEach((to, from, next) => {
-    if (VueCookieNext.getCookie('token')) {
+    if (VueCookieNext.getCookie('openId')) {
         next()
     } else {
 
-        if (to.path === '/home') {
+        if (to.path === '/') {
             next()
         } else {
-            next('/home')
+            next('/')
         }
     }
 

@@ -2,6 +2,6 @@ import Xrequest from "./request";
 
 
 export const XrequestInstance = new Xrequest({
-  timeout: 6000,
-  baseURL: import.meta.env.VITE_APP_API_BASEURL,
+    timeout: 6000,
+    baseURL: 'https://cad-answer.thermo-fisher.ms-vm.synconize.com/api/fission/',
 });

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from "path";
-import { VantResolver } from 'unplugin-vue-components/resolvers'
+import { VantResolver,VarletUIResolver} from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite';
 import autoprefixer from 'autoprefixer';
 import postCssPxToRem from 'postcss-pxtorem';
@@ -11,7 +11,10 @@ export default defineConfig({
   plugins: [
       vue(),
       Components({
-          resolvers:[VantResolver()]
+          resolvers:[
+              VantResolver(),
+              VarletUIResolver()
+          ]
       })
   ],
   server:{

@@ -16,5 +16,8 @@ declare module '@vue/runtime-core' {
     VanButton: typeof import('vant/es')['Button']
     VanCellGroup: typeof import('vant/es')['CellGroup']
     VanField: typeof import('vant/es')['Field']
+    VarButton: typeof import('@varlet/ui')['_ButtonComponent']
+    VarButtonGroup: typeof import('@varlet/ui')['_ButtonGroupComponent']
+    VarSpace: typeof import('@varlet/ui')['_SpaceComponent']
   }
 }

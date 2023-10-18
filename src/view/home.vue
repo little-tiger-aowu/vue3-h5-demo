@@ -7,7 +7,14 @@
      <van-field v-model="newName" label="姓名" placeholder="请输入新姓名" />
    </van-cell-group>
    <van-button @click="changeName" style="width: 30%" type="primary">修改名字</van-button>
-
+   <var-button type="primary">主要按钮</var-button>
+   <var-space :size="[10, 10]">
+     <var-button-group type="primary" mode="text">
+       <var-button>按钮</var-button>
+       <var-button>按钮</var-button>
+       <var-button>按钮</var-button>
+     </var-button-group>
+   </var-space>
  </div>
 </template>
 

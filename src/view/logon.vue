@@ -22,7 +22,6 @@ const userInfo = reactive<any>({
   nickname: router.currentRoute.value.query.nickname || '' // 获取用户昵称
 });
 
-console.log("userInfo", userInfo)
 onMounted(() => {
   getOpenId()
 })
@@ -31,7 +30,6 @@ onMounted(() => {
 // 获取openId
 const getOpenId = () => {
   if (userInfo.openId) {
-    cookies.getCookie('')
     VueCookieNext.setCookie("openId", userInfo.openId);
     VueCookieNext.setCookie("avatar", userInfo.avatar);
     VueCookieNext.setCookie("nickname", userInfo.nickname);
@@ -39,9 +37,9 @@ const getOpenId = () => {
   } else {
     let url = encodeURIComponent(import.meta.env.VITE_APP_WXCHAT_OAUTH);
     // window.location.href =
-    //     `http://wx.oauth.synconize.com/wechat/oauth/?appId=wxfb99f0fc1ca20ac0&redirectUrl=${url}`;
+    //     `http://wx.oauth.synconize.com/wech/at/oauth/?appId=wxfb99f0fc1ca20ac0&redirectUrl=http://192.168.241.33:5175/`;
     window.location.href =
-        `https://vmapi.webhl.com/Oapi/Auth?url=https://cad-answer.thermo-fisher.ms-vm.synconize.com/rotary/`;
+        `https://app.jingsocial.com/api/oauth/authorize?appid=wx923804b1d49f51fb&scope=snsapi_userinfo&redirect_uri=http://thermofisher.thumbs.al-ecs.synconize.cn/`;
   }
 }
 
@@ -54,6 +52,5 @@ const getOpenId = () => {
   background-image: url("@/assets/image/loginBg.png");
   background-size: 100% auto;
   background-repeat: no-repeat;
-  background-color: #311790;
 }
 </style>

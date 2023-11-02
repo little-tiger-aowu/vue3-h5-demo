@@ -8,52 +8,61 @@
           :prizes="prizes"
           :blocks="blocks"
           :buttons="buttons"
+          @start="startCallback"
           @end="endCallback"
       />
     </div>
     <!-- 开始抽奖 -->
-    <img class="playBtn" @click="startCallback" src="../assets/image/playBtn.png" alt="">
+    <!--    <img class="playBtn" @click="startCallback" src="../assets/image/playBtn.png" alt="">-->
     <!-- 我的奖品 -->
-    <img @click="showRecord" class="myPrize" src="../assets/image/myPrize.png" alt="">
+    <div @click="showRecord" class="playBtn">我的奖品和收获信息</div>
   </div>
   <!-- 中奖结果 -->
   <van-overlay :show="prizeShow">
     <div class="wrapper">
       <div class="prizeBg">
-        <div v-if="isWin" class="prizeName">恭喜你，获得{{ prizeInfo.prizeName }}</div>
-        <div v-if="isWin" class="prizeUrl">
-          <img v-if="index === 3" :src=myprize alt="">
-          <img v-if="index === 1" :src=myproze1 alt="">
-          <img v-if="index === 2" :src=myproze2 alt="">
+        <div class="prizeUrl">
+          <img :src=prizeInfo.prizePic alt="">
         </div>
-        <div v-if="isWin" class="addressFill">
-          <img @click="addressShow = true;prizeShow = false" style="width: 50%" src="../assets/image/addressBtn.png"
-               alt="">
+        <div v-if="prizeInfo.id !== 0" class="prizeName" style="color: #381012">恭喜你，获得{{
+            prizeInfo.prizeName
+          }}
         </div>
-        <div v-else class="notWin">
-          <img :src=notWinning alt="">
-        </div>
+        <div v-else>很遗憾，未中奖</div>
       </div>
-      <img v-if="!isWin" @click="prizeShow = false" class="close" src="../assets/image/close.png" alt="">
+      <div class="addressFill" style="color: white;border-bottom: 1px solid #fff;margin-top: 20px">
+        <span @click="addressShow = true;prizeShow = false">填写收货地址</span>
+        <!--        <img @click="addressShow = true;prizeShow = false" style="width: 50%" src="../assets/image/addressBtn.png"-->
+        <!--             alt="">-->
+      </div>
+      <img @click="prizeShow = false" class="close" src="../assets/image/close.png" alt="">
     </div>
   </van-overlay>
   <!-- 抽奖记录 -->
   <van-overlay :show="recordShow">
     <div class="wrapper">
-      <div class="recordBox">
+      <div class="prizeBg">
         <div class="prizeUrl">
-          <img v-if="recordInfo.id === 3" :src=myprize alt="">
-          <img v-if="recordInfo.id === 1" :src=myproze1 alt="">
-          <img v-if="recordInfo.id === 2" :src=myproze2 alt="">
-          <div class="notWin" v-if="recordInfo.id === 0">
-            <span>暂未中奖</span>
-          </div>
+          <img :src=recordInfo.prizePic alt="">
         </div>
-        <div v-if="recordInfo.id !== 0" class="prizeName">{{ recordInfo.prizeName }}</div>
+        <!--        <div class="prizeName" style="color: #381012">恭喜你，获得{{ recordInfo.prizeName }}</div>-->
       </div>
-      <div v-if="recordInfo.id !== 0" class="addressBtn">
-        <span @click="showMyAddress" v-if="isFillAddress">查看收货地址</span>
-        <span @click="addressShow = true;recordShow = false" v-else>添加收货地址</span>
+      <div class="addressFill" style="display: flex;justify-content: center">
+        <div v-if="!isFillAddress" @click="addressShow = true;recordShow = false"
+             style="color: #fff;border-bottom: 1px solid;margin-top: 10px" class="">
+          <span>添加地址</span>
+        </div>
+        <div v-else @click="showMyAddress"
+             style="color: #fff;border-bottom: 1px solid;margin-top: 10px"
+             class="">
+          <span>查看地址</span>
+        </div>
+        <!--        <img v-if="!isFillAddress" @click="addressShow = true;recordShow = false" style="width: 50%"-->
+        <!--             src="../assets/image/addressBtn.png"-->
+        <!--             alt="">-->
+        <!--        <img v-else @click="showMyAddress" style="width: 50%"-->
+        <!--             src="../assets/image/showAddBtn.png"-->
+        <!--             alt="">-->
       </div>
       <img @click="recordShow = false" class="close" src="../assets/image/close.png" alt="">
     </div>
@@ -69,7 +78,11 @@
           <div>详细地址：{{ addressInfo.address }}</div>
         </div>
         <div class="upBtn">
-          <img @click="addressShow = true;myAddress = false" src="../assets/image/upAddBtn.png" alt="">
+          <div @click="addressShow = true;myAddress = false"
+               style="color: #000;border-bottom: 1px solid;margin-top: 10px"
+               class="">
+            <span>修改地址</span>
+          </div>
         </div>
       </div>
       <img @click="myAddress = false" class="close" src="../assets/image/close.png" alt="">
@@ -79,7 +92,10 @@
   <van-overlay :show="addressShow">
     <div class="wrapper">
       <div class="addressBox">
-        <img style="display: block;z-index: 3;width: 100%" src="@/assets/image/addressTop.png" alt="">
+        <div class="topTitle">
+          填写收货信息
+        </div>
+        <!--        <img style="display: block;z-index: 3;width: 100%" src="@/assets/image/addressTop.png" alt="">-->
         <div class="submitItem">
           <van-form @submit="onSubmit">
             <van-cell-group inset>
@@ -90,6 +106,7 @@
                   label="姓名"
                   autocomplete="off"
                   placeholder="姓名"
+                  :rules="[{ required: true, message: '请填写姓名' }]"
               />
             </van-cell-group>
             <van-cell-group inset>
@@ -99,6 +116,7 @@
                   label="手机"
                   autocomplete="off"
                   placeholder="手机号"
+                  :rules="[{ required: true, message: '请填写手机号' },{ pattern, message: '请输入正确的手机号码' }]"
               />
             </van-cell-group>
             <van-cell-group inset>
@@ -119,11 +137,12 @@
                   label="详细地址"
                   autocomplete="off"
                   placeholder="详细地址"
+                  :rules="[{ required: true, message: '请填写详细地址' }]"
               />
             </van-cell-group>
             <div style="margin: 16px;">
               <van-button round block type="primary" native-type="submit">
-                <img src="../assets/image/submitBtn.png" alt="">
+                提交
               </van-button>
             </div>
           </van-form>
@@ -196,7 +215,17 @@ import pointer from '@/assets/image/Pointer.png'
 import checkIcon from '@/assets/image/checkIcon.png'
 import nocheckIcon from '@/assets/image/nocheckIcon.png'
 import {urbanArea} from '@/utils/urbanArea'
-import {userLogin, getUserStart, playPrize, addInfo, getRecord, isFillInfo, getUserInfo} from "@/api/path";
+import {
+  userLogin,
+  getUserStart,
+  getPrizeList,
+  isDrawPrize,
+  playPrize,
+  addInfo,
+  getRecord,
+  isFillInfo,
+  getUserInfo
+} from "@/api/path";
 import {Toast} from "vant";
 import 'vant/es/toast/style/index'
 import {VueCookieNext} from "vue-cookie-next";
@@ -206,29 +235,48 @@ const router = useRouter();
 
 // 转盘配置
 const blocks = ref([
-  // {padding: '10px', background: '#e8e8ef'}
+  {padding: '3px', background: '#000'}
 ])
-const prizes = reactive([
-  {background: '#e50303', imgs: [{src: prize3, width: '35%', top: '-30%'}]},
-  {background: '#eff0d1', imgs: [{src: prize2, width: '35%', top: '-50%'}]},
-  {background: '#e50303', imgs: [{src: prize4, width: '35%', top: '-50%'}]},
-  {background: '#eff0d1', imgs: [{src: prize1, width: '50%', top: '-50%'}]},
-
-
-])
+const prizes = ref<any>([])
+// const prizes = reactive([
+//   {background: '#e44645', imgs: [{src: prize4, width: '35%', top: '-50%'}]},
+//   {background: '#ffc1c1', imgs: [{src: prize3, width: '35%', top: '-30%'}]},
+//   {background: '#e44645', imgs: [{src: prize2, width: '35%', top: '-50%'}]},
+//   {background: '#ffc1c1', imgs: [{src: prize1, width: '35%', top: '-50%'}]},
+// ])
 const buttons = reactive([
   {
     radius: '130%',
-    imgs: [{src: pointer, width: '100%', height: '100%', top: '-100%'}]
+    imgs: [{src: pointer, width: '18%', height: '20%', top: '-20%'}]
   }
 ])
 
 onMounted(() => {
   login()
+  PrizeList()
 })
 
+const pattern = /^1[3456789]\d{9}$/
+
+// // 获取奖品
+const PrizeList = async () => {
+  const {data} = await getPrizeList()
+  data.forEach((item: any, index: number) => {
+    prizes.value.push({
+      // fonts: [{text: item.prizeName, fontSize: '20px', fontColor: '#000', top: '30px'}],
+      background: index % 2 ? '#e44645' : '#ffc1c1',
+      imgs: [{
+        src: item.prizePic,
+        width: '65px',
+        height: '65px',
+        top: '25px'
+      }]
+    })
+  })
+}
+
 // 获取用户信息
-const userStart = ref(0)
+const isDraw = ref(false)
 const login = async () => {
   let userData = {
     openId: VueCookieNext.getCookie('openId'),
@@ -236,31 +284,43 @@ const login = async () => {
     wxName: VueCookieNext.getCookie('nickname')
   }
   await userLogin(userData)
-
-  const {data} = await getUserStart({openId: VueCookieNext.getCookie('openId')})
-  userStart.value = data
-
+  const {data} = await isDrawPrize({openId: VueCookieNext.getCookie('openId')})
+  isDraw.value = data
 }
+
+// 开始抽奖_测试
+// const index = ref(0)
+// const prizeInfo = ref({
+//   prizePic: 'http://thermo-fisher-physical.img.qiniu.synconize.com/secret/secret1.png',
+//   prizeName: '笔记本'
+// })
+// const myLucky = ref<any>(null)
+// const startCallback = () => {
+//   myLucky.value.play()
+//   setTimeout(() => {
+//     myLucky.value.stop(index.value)
+//   }, 2500)
+// }
 
 // 开始抽奖
 const index = ref(0)
 const prizeInfo = ref<any>()
 const myLucky = ref<any>(null)
 const startCallback = async () => {
-  if (userStart.value === 200) {
-    const {data, msg} = await playPrize({openId: VueCookieNext.getCookie('openId')})
-    if (data) {
-      index.value = data.id
-      prizeInfo.value = data
-      myLucky.value.play()
-      setTimeout(() => {
-        myLucky.value.stop(index.value)
-      }, 3000)
-    } else {
-      Toast.fail(msg)
-    }
+  if (isDraw.value) {
+    Toast.fail('没有抽奖次数')
+    return false
+  }
+  const {data, msg} = await playPrize({openId: VueCookieNext.getCookie('openId')})
+  if (data) {
+    index.value = data.id
+    prizeInfo.value = data
+    myLucky.value.play()
+    setTimeout(() => {
+      myLucky.value.stop(index.value)
+    }, 3000)
   } else {
-    Toast.fail('暂无抽奖资格')
+    Toast.fail(msg)
   }
 }
 
@@ -343,6 +403,7 @@ const isFillAddress = ref(false)
 const showRecord = async () => {
   const {data} = await getRecord({openId: VueCookieNext.getCookie('openId')})
   if (data) {
+    console.log("data", data)
     recordInfo.value = data
     recordShow.value = true
     const res = await isFillInfo({openId: VueCookieNext.getCookie('openId')})
@@ -382,30 +443,31 @@ const showMyAddress = async () => {
 <style scoped lang="scss">
 .homeBox {
   width: 100%;
-  height: 100%;
   display: flex;
+  overflow: scroll;
   flex-direction: column;
   align-items: center;
   background-image: url("../assets/image/homeBg.png");
-  background-color: #311790;
   background-size: 100% auto;
   background-repeat: no-repeat;
-  position: relative;
+  //position: relative;
 
   .luckyBox {
-    margin-top: 182px;
+    margin-top: 270px;
 
     .myLucky {
-      width: 265px !important;
-      height: 265px !important;;
+      width: 340px !important;
+      height: 340px !important;;
     }
   }
 
   .playBtn {
-    width: 50%;
-    //margin-top: 150px;
-    position: absolute;
-    bottom: 30px;
+    font-size: 15px;
+    margin: 60px 0;
+    bottom: 80px;
+    left: 50%;
+    border-bottom: 2px solid #000;
+    font-weight: bolder;
   }
 
   .myPrize {
@@ -427,6 +489,10 @@ const showMyAddress = async () => {
     margin-top: 30px;
     width: 8%;
   }
+}
+
+.myPrize {
+  font-size: 15px;
 }
 
 .block {
@@ -472,7 +538,9 @@ const showMyAddress = async () => {
 .prizeBg {
   width: 75%;
   height: 250px;
-  background-image: url("../assets/image/prizeBg.png");
+  //background-image: url("../assets/image/prizeBg.png");
+  background-color: white;
+  border-radius: 10px;
   background-size: 100% auto;
   background-repeat: no-repeat;
   display: flex;
@@ -482,7 +550,7 @@ const showMyAddress = async () => {
 
   .prizeName {
     color: white;
-    margin-top: 30px;
+    margin-top: 50px;
     font-size: 13px;
     letter-spacing: 1px;
     opacity: 0.7;
@@ -492,7 +560,7 @@ const showMyAddress = async () => {
 
     width: 100%;
     height: 110px;
-    margin-top: 20px;
+    margin-top: 50px;
     display: flex;
     justify-content: center;
 
@@ -506,6 +574,11 @@ const showMyAddress = async () => {
     display: flex;
     justify-content: center;
     margin-top: 20px;
+
+    span {
+      font-size: 20px;
+      border-bottom: 1px solid;
+    }
   }
 
   .notWin {
@@ -515,6 +588,8 @@ const showMyAddress = async () => {
     flex-direction: column;
     align-items: center;
     opacity: 0.8;
+    font-size: 35px;
+    font-weight: bolder;
 
     img {
       width: 80%;
@@ -525,6 +600,20 @@ const showMyAddress = async () => {
 
 .addressBox {
   width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .topTitle {
+    width: 99.3%;
+    background-color: white;
+    display: flex;
+    height: 80px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px 10px 0 0;
+
+  }
 
   .submitItem {
     width: 100%;
@@ -547,15 +636,15 @@ const showMyAddress = async () => {
         padding: 5px 0;
       }
 
-      .van-button {
-        background-color: transparent;
-        border: 0;
-
-        img {
-          width: 70%;
-          margin-top: 20px;
-        }
-      }
+      //.van-button {
+      //  background-color: transparent;
+      //  border: 0;
+      //
+      //  img {
+      //    width: 70%;
+      //    margin-top: 20px;
+      //  }
+      //}
     }
 
 
@@ -574,8 +663,10 @@ const showMyAddress = async () => {
 
 .recordBox {
   width: 80%;
-  height: 355px;
-  background-image: url("../assets/image/recordBg.png");
+  height: 255px;
+  //background-image: url("../assets/image/recordBg.png");
+  background-color: white;
+  border-radius: 10px;
   background-size: 100% auto;
   display: flex;
   flex-direction: column;
@@ -587,7 +678,6 @@ const showMyAddress = async () => {
 
     width: 100%;
     height: 150px;
-    margin-top: 100px;
     display: flex;
     justify-content: center;
 
@@ -628,15 +718,17 @@ const showMyAddress = async () => {
 }
 
 .addressInfo {
-  width: 80%;
-  height: 350px;
-  background-image: url("../assets/image/myAddressbg.png");
+  width: 81%;
+  height: 230px;
+  //background-image: url("../assets/image/myAddressbg.png");
+  background-color: white;
+  border-radius: 10px;
   background-size: 100% auto;
   background-repeat: no-repeat;
 
   .info {
-    margin-top: 150px;
-    color: white;
+    margin-top: 20px;
+    color: #000;
     font-size: 15px;
     margin-left: 10px;
 
@@ -648,6 +740,8 @@ const showMyAddress = async () => {
 
   .upBtn {
     text-align: center;
+    display: flex;
+    justify-content: center;
 
     img {
       margin-top: 20px;
@@ -659,14 +753,18 @@ const showMyAddress = async () => {
 .endIngBox {
   width: 80%;
   height: 115px;
-  background-image: url("../assets/image/endingBg.png");
+  //background-image: url("../assets/image/endingBg.png");
   background-repeat: no-repeat;
   background-size: 100% 100%;
+  background-color: white;
+  color: #000;
+  border-radius: 10px;
   font-size: 15px;
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  color: white;
 }
+
+
 </style>

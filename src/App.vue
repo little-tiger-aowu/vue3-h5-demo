@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-document.title = '幸运大转盘'
+document.title = '幸运转转乐'
 </script>
 
 <style>

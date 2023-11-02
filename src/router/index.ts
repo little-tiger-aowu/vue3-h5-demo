@@ -1,5 +1,7 @@
 import {createRouter, createWebHistory, createWebHashHistory, RouteRecordRaw} from 'vue-router';
 import {VueCookieNext} from 'vue-cookie-next'
+// @ts-ignore
+import {wxShareFriend} from '@/utils/wxapi.js'
 
 const routes: Array<RouteRecordRaw> = [
     // {
@@ -26,15 +28,15 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-    history: createWebHistory('/rotary/'),
+    history: createWebHistory(),
     routes
 })
 
 router.beforeEach((to, from, next) => {
     if (VueCookieNext.getCookie('openId')) {
+        wxShareFriend()
         next()
     } else {
-
         if (to.path === '/') {
             next()
         } else {

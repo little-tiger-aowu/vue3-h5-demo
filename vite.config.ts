@@ -8,8 +8,6 @@ import postCssPxToRem from 'postcss-pxtorem';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    mode: 'history',
-    base: '/rotary/',
     plugins: [
         vue(),
         Components({

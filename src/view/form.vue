@@ -273,6 +273,7 @@ const onSubmit = (val: formType) => {
     userName: userInfo.userName, // 用户名
     phone: userInfo.phone, // 电话
     email: userInfo.Mailbox, // 邮箱
+    nickName: VueCookieNext.getCookie('nickname'),
     companyName: userInfo.unitName, // 单位名称
     job: userInfo.position === '其他（请说明）' ? '其他-' + userInfo.positionOther : userInfo.position, // 职位
     isScanningShop: userInfo.purchaselan1, // 是否有扫描电镜的采购计划
@@ -281,7 +282,6 @@ const onSubmit = (val: formType) => {
     isSendProductData: userInfo.parameterTable, // 需要产品参数
     isAgree: userInfo.contactMe, // 联系我
   }
-
   addForm(JSON.stringify(data)).then((res: IData) => {
     if (res.code === '00000') {
       setTimeout(() => {

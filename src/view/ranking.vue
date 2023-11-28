@@ -7,12 +7,12 @@
         alt=""
     />
     <div v-if="route.query.type === 'like'" class="checkBox">
-      <img @click="leftBtn" class="icon" src="../assets/image/Ranking/leftIcon.png" alt="">
-      <div class="bg1" v-if="stageId === 1">第一期</div>
-      <div class="bg1" v-else-if="stageId === 2">第二期</div>
-      <div class="bg1" v-else-if="stageId === 3">第三期</div>
-      <div class="bg1" v-else-if="stageId === 4">第四期</div>
-      <img @click="rightBtn" class="icon" src="../assets/image/Ranking/rightIcon.png" alt="">
+      <!--      <img @click="leftBtn" class="icon" src="../assets/image/Ranking/leftIcon.png" alt="">-->
+      <!--      <div class="bg1" v-if="stageId === 1">第一期</div>-->
+      <!--      <div class="bg1" v-else-if="stageId === 2">第二期</div>-->
+      <!--      <div class="bg1" v-else-if="stageId === 3">第三期</div>-->
+      <!--      <div class="bg1" v-else-if="stageId === 4">第四期</div>-->
+      <!--      <img @click="rightBtn" class="icon" src="../assets/image/Ranking/rightIcon.png" alt="">-->
     </div>
     <van-row v-if="route.query.type === 'like'" class="topRow">
       <van-col span="6">排名</van-col>
@@ -140,20 +140,6 @@ const onTouchEnd = (e) => {
 
 
 
-const leftBtn = () => {
-  if (stageId.value > 1) {
-    stageId.value--
-    getLikeRanking()
-  }
-}
-const rightBtn = () => {
-  if (stageId.value < 4) {
-    stageId.value++
-    getLikeRanking()
-  }
-}
-
-
 // 邀请排行榜
 const likeList = ref();
 const getInviteRanking = () => {
@@ -165,7 +151,7 @@ const getInviteRanking = () => {
 // 集赞排行榜
 const stageId = ref(1)
 const getLikeRanking = () => {
-  likeRanking(JSON.stringify({stageId: stageId.value})).then((res: IData) => {
+  likeRanking().then((res: IData) => {
     likeList.value = res.data
   })
 }

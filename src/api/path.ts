@@ -73,12 +73,11 @@ export function inviteRanking() {
 }
 
 // 点赞排行榜
-export function likeRanking(data: string) {
+export function likeRanking() {
     return XrequestInstance.request({
         url: '/ranking/getLikeRankingList',
         method: 'POST',
         Accept: 'json',
-        data
     })
 }
 
